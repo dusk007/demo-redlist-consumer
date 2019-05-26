@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.boot.web.client.RestTemplateBuilder
 
+@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RedListConsumerTest{
 
