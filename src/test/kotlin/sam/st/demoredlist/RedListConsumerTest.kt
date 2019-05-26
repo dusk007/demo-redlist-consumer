@@ -35,12 +35,19 @@ class RedListConsumerTest{
         assertThat(region).contains(testRegion)
     }
 
-
     @Test
     fun `test species endpoint` (){
-        val species = sut.listSpeciesByRegion(testRegion)
+        val species = sut.listSpeciesByRegion(testRegion, 0)
         assertThat(species).doesNotContainNull()
         assertThat(species).isNotEmpty()
+    }
+
+
+    @Test
+    fun `test conservation measure endpoint` (){
+        val list = sut.listConservationMeasure( 12392)
+        assertThat(list).doesNotContainNull()
+        assertThat(list).isNotEmpty()
     }
 
     @Test

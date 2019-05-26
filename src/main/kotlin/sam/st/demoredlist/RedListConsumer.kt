@@ -12,8 +12,9 @@ interface RedListConsumerDefinition {
     fun reachAPI(): Version?
     fun listCountries(): List<Country>
     fun listRegions(): List<Region>
-    fun listSpeciesByRegion(region: Region): List<Species>
+    fun listSpecies(path: String, page: Int): List<Species>
     fun listSpeciesByRegion(region: Region, page: Int): List<Species>
+    fun listConservationMeasure(id: Int): List<ConservationMeasure>
 }
 
 @Component
@@ -26,30 +27,38 @@ class RedListConsumer(templateBuilder: RestTemplateBuilder) : RedListConsumerDef
         return restTemplate.getForObject("/version", Version::class.java)
     }
 
-
     override fun listCountries(): List<Country> {
-        val resp =
-                restTemplate.getForObject("/country/list?token=${token}", CountryResponse::class.java)
-        return resp?.results ?: throw IllegalStateException("Api should always return data")
+        return restTemplate
+                .getForObject("/country/list?token=$token", CountryResponse::class.java)
+                ?.results
+                ?: throw IllegalStateException("Api should always return data")
     }
 
     override fun listRegions(): List<Region> {
-        val resp =
-                restTemplate.getForObject("/region/list?token=${token}", RegionResponse::class.java)
-        return resp?.results ?: throw IllegalStateException("Api should always return data")
+        return restTemplate
+                .getForObject("/region/list?token=$token", RegionResponse::class.java)
+                ?.results
+                ?: throw IllegalStateException("Api should always return data")
     }
 
-    override fun listSpeciesByRegion(region: Region): List<Species> {
-        println(baseURI + "/species/region/${region.identifier}/page/0?token=${token}")
-        val resp =
-                restTemplate.getForObject("/species/region/${region.identifier}/page/0?token=${token}", SpeciesResponse::class.java)
-        return resp?.result ?: emptyList()
+    override fun listSpecies(path: String, page: Int): List<Species> {
+        return restTemplate.getForObject("/$path/page/$page?token=$token", SpeciesResponse::class.java)
+                ?.result
+                ?: emptyList()
     }
 
     override fun listSpeciesByRegion(region: Region, page: Int): List<Species> {
-        val resp =
-                restTemplate.getForObject("/species/region/${region.identifier}/page/${page}?token=${token}", SpeciesResponse::class.java)
-        return resp?.result ?: emptyList()
+        return listSpecies("/species/region/${region.identifier}", page = page)
+    }
+
+    override fun listConservationMeasure(id: Int): List<ConservationMeasure> {
+        println("$baseURI/measures/species/id/$id?token=$token")
+        return restTemplate
+                .getForObject(
+                        "/measures/species/id/$id?token=$token",
+                        ConservationMeasureResponse::class.java)
+                ?.result
+                ?: emptyList()
     }
 
 }
