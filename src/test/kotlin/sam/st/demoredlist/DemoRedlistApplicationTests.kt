@@ -11,7 +11,7 @@ import kotlin.random.Random
 
 
 /**
- * Test Class for the filter print result logic
+ * Test Class implementing the main Example
  */
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -21,20 +21,11 @@ class DemoRedlistApplicationTests {
     val seed = 123L
     val takeLimit = 12 //limit to keep execution time low
 
-    //swtiched to specific because random often seems to just not yield and results
-    val pickedRandomRegion: Region by lazy {
-        val rand = Random(seed)
-        val regions = api.listRegions()
-        regions[rand.nextInt() % regions.size]
-    }
-    val europe = Region("", "europe")
-
     val speciesData = CacheBuilder.newBuilder()
             .maximumSize(10)
             .build(object : CacheLoader<Int, List<Species>>() {
-                override fun load(key: Int) = api.listSpeciesByRegion(europe, key)
+                override fun load(key: Int) = api.listSpeciesByRegion(Region("", "europe"), key)
             })
-
     val conservationCache = CacheBuilder.newBuilder()
             .maximumSize(1000)
             .build(object : CacheLoader<Int, List<ConservationMeasure>>() {
@@ -89,6 +80,13 @@ class DemoRedlistApplicationTests {
                 .doOnNext { println(it) }
                 .count()
         assertThat(singleCount.blockingGet()).isGreaterThan(0)
+    }
+
+    //removed sometimes missing the required species
+    val pickedRandomRegion: Region by lazy {
+        val rand = Random(seed)
+        val regions = api.listRegions()
+        regions[rand.nextInt() % regions.size]
     }
 
 }
